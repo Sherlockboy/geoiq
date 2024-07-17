@@ -35,4 +35,7 @@ return [
         ],
     ],
 
+    'usps' => [
+        'cookie' => env('USPS_COOKIE'),
+    ]
 ];
