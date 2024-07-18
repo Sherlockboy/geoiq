@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
+use App\Enums\Country;
 use App\Jobs\USPSLookupJob;
+use App\Services\QueueService;
 use Illuminate\Console\Command;
-use Illuminate\Database\Query\Builder;
-use Illuminate\Support\Facades\DB;
 
 class FetchZipCodesFromUSPS extends Command
 {
@@ -26,22 +26,12 @@ class FetchZipCodesFromUSPS extends Command
     /**
      * Execute the console command.
      */
-    public function handle(): void
+    public function handle(QueueService $queueService): void
     {
         $pullOnlyNewTargets = !empty($this->option('new'));
 
-        DB::table('geo_targets_mv as g')
-            ->select(['g.place_id', 'g.place', 's.code'])
-            ->join('states as s', 'g.state', '=', 's.name')
-            ->when($pullOnlyNewTargets, function (Builder $query) {
-                return $query->leftJoin('zip_codes as z', 'z.ga_city_id', '=', DB::raw('g.place_id::bigint'))
-                    ->whereNull('z.id');
-            })
-            ->where('g.country_code', '=', 'us')
-            ->whereNotIn('g.target_type', ['state', 'postal code'])
-            ->get()
-            ->each(
-                fn($target) => USPSLookupJob::dispatch($target->place_id, $target->place, $target->code)
-            );
+        $targets = $queueService->getGeoTargetsToFetchZipCodes(Country::USA, ['state', 'postal code'], $pullOnlyNewTargets);
+
+        $targets->each(fn($target) => USPSLookupJob::dispatch($target->place_id, $target->place, $target->code));
     }
 }

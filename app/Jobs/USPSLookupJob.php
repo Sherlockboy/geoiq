@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Enums\ZipCodeSource;
 use App\Models\ZipCode;
 use App\Services\USPSLookupService;
 use Illuminate\Bus\Queueable;
@@ -35,10 +36,11 @@ class USPSLookupJob implements ShouldQueue
         foreach ($zipCodes as $zipCode) {
             $data = [
                 'ga_city_id' => $this->gaCityId,
-                'zip_code' => $zipCode
+                'zip_code' => $zipCode,
+                'data_source' => ZipCodeSource::USPS->value
             ];
 
-            ZipCode::updateOrCreate($data, $data);
+            ZipCode::updateOrCreate($data);
         }
     }
 }
