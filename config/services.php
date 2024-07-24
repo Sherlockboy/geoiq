@@ -37,5 +37,9 @@ return [
 
     'usps' => [
         'cookie' => env('USPS_COOKIE'),
+    ],
+
+    'zip-code-org' => [
+        'cookie' => env('ZIP_CODE_ORG_COOKIE')
     ]
 ];
