@@ -41,5 +41,9 @@ return [
 
     'zip-code-org' => [
         'cookie' => env('ZIP_CODE_ORG_COOKIE')
+    ],
+
+    'canada-post' => [
+        'session_id' => env('CANADA_POST_SESSION_ID')
     ]
 ];
