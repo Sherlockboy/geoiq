@@ -33,10 +33,7 @@ class FetchZipCodesFromCanadaPost extends Command
         $targets = $queueService->getCanadaTargetsToFetchZipCodes(['state', 'postal code'], $pullOnlyNewTargets);
 
         $targets->each(
-            fn($target) => CanadaPostLookupJob::dispatch(
-                $target->place_id,
-                str_replace(',canada', '', $target->canonical_name)
-            )
+            fn($target) => CanadaPostLookupJob::dispatch($target->place_id, $target->canonical_name)
         );
 
         return CommandStatus::SUCCESS;

@@ -16,23 +16,26 @@ class CanadaPostService
                 'origin' => 'https://www.canadapost-postescanada.ca',
                 'priority' => 'u=1, i',
                 'referer' => 'https://www.canadapost-postescanada.ca/cpc/en/tools/find-a-postal-code.page',
-                'sec-ch-ua' => '"Not/A)Brand";v="8", "Chromium";v="126", "Google Chrome";v="126"',
+                'sec-ch-ua' => '"Chromium";v="130", "Google Chrome";v="130", "Not?A_Brand";v="99"',
                 'sec-ch-ua-mobile' => '?0',
                 'sec-ch-ua-platform' => '"macOS"',
                 'sec-fetch-dest' => 'empty',
                 'sec-fetch-mode' => 'cors',
                 'sec-fetch-site' => 'cross-site',
-                'user-agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36',
-            ]);
+                'user-agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
+            ])->throw();
     }
 
-    public function find(string $address, string $key = null)
+    public function find(string $address, string $container = '', string $key = null)
     {
         return $this->httpClient
             ->get('/Find/v1.00/json3ex.ws', [
                 'Key' => 'EA98-JC42-TF94-JK98',
                 'Text' => $address,
-                'Countries' => 'CA',
+                'Container' => $container,
+                'Origin' => 'CAN',
+                'Countries' => 'CAN',
+                'Limit' => 20,
                 'Language' => 'en',
                 'SOURCE' => 'PCA-SCRIPT',
                 'SESSION' => config('services.canada-post.session_id'),

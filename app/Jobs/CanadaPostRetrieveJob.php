@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Enums\ZipCodeSource;
+use App\Models\GeoTarget;
 use App\Models\ZipCode;
 use App\Services\CanadaPostService;
 use Illuminate\Bus\Queueable;
@@ -30,19 +31,21 @@ class CanadaPostRetrieveJob implements ShouldQueue
      */
     public function handle(CanadaPostService $service): void
     {
+        $gaCity = GeoTarget::where('place_id', '=', $this->gaCityId)->firstOrFail();
+
         $locations = $service->get($this->addressId, 'Items');
 
         foreach ($locations as $location) {
-            $zipCodes = explode(' ', $location['PostalCode']);
-
-            foreach ($zipCodes as $zipCode) {
-                $data = [
+            if (
+                strtolower($gaCity->place) == strtolower($location['City'])
+                && strtolower($gaCity->state) == strtolower($location['ProvinceName'])
+                && strtolower($gaCity->country) == strtolower($location['CountryName'])
+            ) {
+                ZipCode::updateOrCreate([
                     'ga_city_id' => $this->gaCityId,
-                    'zip_code' => $zipCode,
+                    'zip_code' => strtoupper($location['PostalCode']),
                     'data_source' => ZipCodeSource::CANADA_POST->value,
-                ];
-
-                ZipCode::updateOrCreate($data);
+                ]);
             }
         }
     }
